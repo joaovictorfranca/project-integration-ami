@@ -1,0 +1,83 @@
+#version: "3.9"
+
+services:
+  artemis:
+    image: apache/activemq-artemis:latest
+    container_name: ami-activemq
+    ports:
+      - "61616:61616"
+      - "8161:8161"
+    environment:
+      ARTEMIS_USER: admin
+      ARTEMIS_PASSWORD: admin
+    volumes:
+      - artemis_data:/var/lib/artemis-instance
+    restart: always
+
+  postgres:
+    image: postgres:15
+    container_name: ami-postgres
+    environment:
+      - POSTGRES_DB=ami_db
+      - POSTGRES_PASSWORD=admin
+      - POSTGRES_USER=admin
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: always
+
+  redis:
+    image: redis:latest
+    container_name: ami-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    restart: always
+
+  standard-business:
+    image: 10.160.0.21:5000/trainee-standard-business:latest
+    container_name: business
+    environment:
+      BROKER_URL: artemis
+      BROKER_PORT: 61616
+      BROKER_USER: admin # MUDOU DE artemis PARA admin
+      BROKER_PASSWORD: admin # MUDOU DE artemis PARA admin
+      REDIS_HOST: redis # MUDOU DE redis_server PARA redis
+      REDIS_PORT: 6379
+      DATASOURCE_JDBC: jdbc:postgresql://postgres:5432/ami_db # AJUSTADO PARA O SEU POSTGRES
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+    ports:
+      - "8081:8080"
+    volumes:
+      - business_data:/data
+    restart: always
+
+  cronjob:
+    image: 10.160.0.21:5000/trainee-cronjob:latest
+    container_name: cronjob
+    environment:
+      BROKER_URL: artemis       # Nome do serviço definido no topo do seu compose
+      BROKER_PORT: 61616
+      BROKER_USER: admin        # Deve ser igual ao ARTEMIS_USER
+      BROKER_PASSWORD: admin    # Deve ser igual ao ARTEMIS_PASSWORD
+      REDIS_HOST: redis         # Mudado de 'redis_server' para o nome do seu serviço 'redis'
+      REDIS_PORT: 6379
+      # URL do JDBC deve apontar para 'postgres' (nome do seu serviço) e para o banco 'ami_db'
+      DATASOURCE_JDBC: jdbc:postgresql://postgres:5432/ami_db
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+    ports:
+      - "8082:8080"
+    volumes:
+      - cronjob_data:/data
+    restart: always
+
+volumes:
+  postgres_data:
+  artemis_data:
+  redis_data:
+  business_data:
+  cronjob_data:
