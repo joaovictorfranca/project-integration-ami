@@ -3,20 +3,16 @@ package com.eletra.integracao.converter.listener;
 import com.eletra.integracao.converter.dto.MessageDTO;
 import com.eletra.integracao.converter.service.MessageConverterService;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.Mockito;
+import org.springframework.boot.test.context.SpringBootTest;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-
-@ExtendWith(MockitoExtension.class)
+@SpringBootTest
 class MessageListenerTest {
 
     @Mock
@@ -31,7 +27,7 @@ class MessageListenerTest {
     @Test
     @DisplayName("Deve ler o JSON, converter para MessageDTO e enviar para o service")
     void deveProcessarMensagemComSucesso() throws Exception {
-        // Arrange
+        // Given
         String jsonBruto = """
                 {
                   "username": "Tereza",
@@ -48,34 +44,34 @@ class MessageListenerTest {
                 "yipe hey, yipe ho... e uma garrafa de rum!"
         );
 
-        org.mockito.Mockito.when(objectMapper.readValue(jsonBruto, MessageDTO.class)).thenReturn(dto);
+        Mockito.when(objectMapper.readValue(jsonBruto, MessageDTO.class)).thenReturn(dto);
 
-        // Act
+        // When
         messageListener.onMessage(jsonBruto);
 
-        // Assert
+        // Then
         ArgumentCaptor<MessageDTO> captor = ArgumentCaptor.forClass(MessageDTO.class);
-        verify(converterService).convertAndSend(captor.capture());
+        Mockito.verify(converterService).convertAndSend(captor.capture());
 
         MessageDTO capturado = captor.getValue();
-        assertEquals("Tereza", capturado.username());
-        assertEquals("2026-08-24 14:00:00", capturado.createdAt());
-        assertEquals("2026-08-24 13:59:00", capturado.sentAt());
-        assertEquals("yipe hey, yipe ho... e uma garrafa de rum!", capturado.message());
+        Assertions.assertEquals("Tereza", capturado.username());
+        Assertions.assertEquals("2026-08-24 14:00:00", capturado.createdAt());
+        Assertions.assertEquals("2026-08-24 13:59:00", capturado.sentAt());
+        Assertions.assertEquals("yipe hey, yipe ho... e uma garrafa de rum!", capturado.message());
     }
 
     @Test
     @DisplayName("Não deve chamar o service quando o JSON for inválido")
     void naoDeveChamarServiceQuandoJsonForInvalido() throws Exception {
-        // Arrange
+        // Given
         String jsonInvalido = "{ json invalido }";
 
-        org.mockito.Mockito.when(objectMapper.readValue(jsonInvalido, MessageDTO.class))
+        Mockito.when(objectMapper.readValue(jsonInvalido, MessageDTO.class))
                 .thenThrow(new RuntimeException("Erro ao desserializar"));
 
-        // Act + Assert
-        assertDoesNotThrow(() -> messageListener.onMessage(jsonInvalido));
+        // When & Then
+        Assertions.assertDoesNotThrow(() -> messageListener.onMessage(jsonInvalido));
 
-        verify(converterService, never()).convertAndSend(org.mockito.Mockito.any(MessageDTO.class));
+        Mockito.verify(converterService, Mockito.never()).convertAndSend(Mockito.any(MessageDTO.class));
     }
 }

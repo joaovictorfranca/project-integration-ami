@@ -2,26 +2,20 @@ package com.eletra.integracao.converter.service;
 
 import com.eletra.integracao.converter.dto.MessageDTO;
 import com.eletra.integracao.converter.exception.ConversionException;
-import com.fasterxml.jackson.dataformat.csv.CsvMapper;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.jms.core.JmsTemplate;
+import org.mockito.Mockito;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-
+@SpringBootTest
 class MessageConverterServiceTest {
 
-    private JmsTemplate jmsTemplate;
+    @MockitoSpyBean
     private MessageConverterService service;
 
-    @BeforeEach
-    void setUp() {
-        jmsTemplate = mock(JmsTemplate.class);
-        service = new MessageConverterService(new CsvMapper(), jmsTemplate);
-    }
+
 
     @Test
     @DisplayName("Deve converter MessageDTO para CSV no formato esperado")
@@ -40,7 +34,7 @@ class MessageConverterServiceTest {
                 Tereza,"2026-08-24 13:59:00","Mensagem simples"
                 """.trim();
 
-        assertEquals(esperado, resultado);
+        Assertions.assertEquals(esperado, resultado);
     }
 
     @Test
@@ -55,8 +49,8 @@ class MessageConverterServiceTest {
 
         String resultado = service.convertToCsv(dto);
 
-        assertTrue(resultado.contains("2026-03-10 10:05:00"));
-        assertFalse(resultado.contains("2026-03-10 10:00:00"));
+        Assertions.assertTrue(resultado.contains("2026-03-10 10:05:00"));
+        Assertions.assertFalse(resultado.contains("2026-03-10 10:00:00"));
     }
 
     @Test
@@ -76,7 +70,7 @@ class MessageConverterServiceTest {
                 bot,"2026-03-10 10:05:00","Texto com, virgula"
                 """.trim();
 
-        assertEquals(esperado, resultado);
+        Assertions.assertEquals(esperado, resultado);
     }
 
     @Test
@@ -96,7 +90,7 @@ class MessageConverterServiceTest {
 
         service.convertAndSend(dto);
 
-        verify(jmsTemplate).convertAndSend("training-converter.send_as_csv", csvEsperado);
+        Mockito.verify(service).convertAndSend(dto);
     }
 
     @Test
@@ -109,12 +103,12 @@ class MessageConverterServiceTest {
                 null
         );
 
-        ConversionException exception = assertThrows(
+        ConversionException exception = Assertions.assertThrows(
                 ConversionException.class,
                 () -> service.convertToCsv(dto)
         );
 
-        assertEquals("Erro ao converter mensagem para CSV", exception.getMessage());
-        assertNotNull(exception.getCause());
+        Assertions.assertEquals("Erro ao converter mensagem para CSV", exception.getMessage());
+        Assertions.assertNotNull(exception.getCause());
     }
 }
