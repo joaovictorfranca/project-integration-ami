@@ -5,10 +5,10 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@NoArgsConstructor
+//@NoArgsConstructor
 @AllArgsConstructor
 @Getter
-@Setter
+//@Setter
 public class SentMessageDTO {
     private String username;
     private String createdAt;

@@ -72,25 +72,81 @@ public class ModifiJsonTest {
     }
 
     @Test
-    public void deveLançarExceçãoQuandoIdDoUsuárioEstiverFaltando() {
+    public void deveLancarExcecaoQuandoIdDoUsuarioEstiverFaltando() {
         // Given: JSON sem o ID do usuário
         String message = """
                 {
                     "user": { "username":"teste" },
                     "log": { "message":"oi", "sentAt":"01-27-2026T12:05:04.001Z" }
                 }""";
-
-        // When & Then
         Exception exception = assertThrows(Exception.class, () -> modifiJson.execute(message));
-        // Ajuste a string abaixo conforme a mensagem que você colocou no seu verifyFormat
         assertTrue(exception.getMessage().contains("User ou Log ausentes")
                 || exception.getMessage().contains("Invalid user ID"));
     }
 
     @Test
-    public void deveLançarExceçãoQuandoOLogEstiverAusente() {
+    public void deveLancarExcecaoQuandoIdDoUsuarioEstiverVazio() {
+        // Given: JSON com o ID vazio
+        String message = """
+                {
+                    "user": { "id":"" },
+                    "log": { "message":"oi", "sentAt":"01-27-2026T12:05:04.001Z" }
+                }""";
+        Exception exception = assertThrows(Exception.class, () -> modifiJson.execute(message));
+        assertTrue(exception.getMessage().contains("Invalid user ID"));
+    }
+
+    @Test
+    public void deveLancarExcecaoQuandoOLogEstiverAusente() {
         String message = "{ \"user\": { \"id\":\"123\" } }";
 
-        assertThrows(Exception.class, () -> modifiJson.execute(message));
+        Exception exception = assertThrows(Exception.class, () -> modifiJson.execute(message));
+        assertTrue(exception.getMessage().contains("Log is missing"));
+    }
+
+    @Test
+    public void deveLancarExcecaoQuandoOUsuarioEstiverAusente() {
+        String message = "{ \"log\": { \"message\":\"oi\", \"sentAt\":\"01-27-2026T12:05:04.001Z\" } }";
+
+        Exception exception = assertThrows(Exception.class, () -> modifiJson.execute(message));
+        assertTrue(exception.getMessage().contains("User is missing"));
+    }
+
+    @Test
+    public void deveLancarExcecaoQuandoSentAtEstiverAusenteOuVazio() {
+        String messageWithoutSentAt = """
+                {
+                    "user": { "id":"123" },
+                    "log": { "message":"oi" }
+                }""";
+        Exception exception = assertThrows(Exception.class, () -> modifiJson.execute(messageWithoutSentAt));
+        assertTrue(exception.getMessage().contains("Invalid sentAt"));
+
+        String messageEmptySentAt = """
+                {
+                    "user": { "id":"123" },
+                    "log": { "message":"oi", "sentAt":"" }
+                }""";
+        Exception exception2 = assertThrows(Exception.class, () -> modifiJson.execute(messageEmptySentAt));
+        assertTrue(exception2.getMessage().contains("Invalid sentAt"));
+    }
+
+    @Test
+    public void deveLancarExcecaoQuandoMensagemEstiverAusenteOuVazia() {
+        String messageWithoutMsg = """
+                {
+                    "user": { "id":"123" },
+                    "log": { "sentAt":"01-27-2026T12:05:04.001Z" }
+                }""";
+        Exception exception = assertThrows(Exception.class, () -> modifiJson.execute(messageWithoutMsg));
+        assertTrue(exception.getMessage().contains("Invalid message content"));
+
+        String messageEmptyMsg = """
+                {
+                    "user": { "id":"123" },
+                    "log": { "sentAt":"01-27-2026T12:05:04.001Z", "message":"" }
+                }""";
+        Exception exception2 = assertThrows(Exception.class, () -> modifiJson.execute(messageEmptyMsg));
+        assertTrue(exception2.getMessage().contains("Invalid message content"));
     }
 }

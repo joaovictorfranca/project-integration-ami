@@ -14,7 +14,7 @@ import com.eletra.integracao.business.producer.BusinessProducer;
 @Import(TestcontainersConfiguration.class)
 public class IntegrationTest {
 
-    @Autowired
+    @org.springframework.test.context.bean.override.mockito.MockitoSpyBean
     private JmsTemplate jmsTemplate;
 
     @Autowired
@@ -82,7 +82,22 @@ public class IntegrationTest {
 
         // Validação extra de segurança
         Assertions.assertTrue(jsonRecebidoDaFila.contains("olivia.tavares"));
+        
     }
 
+    @Test
+    void deveFazerCatchAoLancarExcecaoDoJms() {
+        // Simula uma falha de conexão com a fila apenas para verificar a cobertura do bloco catch no Producer
+        org.mockito.Mockito.doThrow(new org.springframework.jms.UncategorizedJmsException("Error Simulado"))
+            .when(jmsTemplate).convertAndSend(org.mockito.Mockito.anyString(), org.mockito.Mockito.anyString());
+
+        // Quando o producer for acionado, ele deve cair no catch e apenas logar o erro
+        Assertions.assertDoesNotThrow(() -> {
+            businessProducer.send("Mensagem");
+        });
+
+        // Garantir o reset para não interferir em outros testes caso rodem depois
+        org.mockito.Mockito.reset(jmsTemplate);
+    }
 
 }

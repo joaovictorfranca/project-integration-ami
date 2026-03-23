@@ -14,7 +14,7 @@
     <groupId>com.eletra</groupId>
     <artifactId>converter</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>projeto-integracao-ami</name>
+    <name>converter</name>
     <description>Conversor de mensagens JSON para CSV via JMS</description>
 
     <properties>
