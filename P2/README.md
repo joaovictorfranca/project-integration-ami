@@ -31,11 +31,19 @@ A aplicação espera receber dados na fila `training-converter.receive_as_json` 
 ```json
 {
   "user": {
-    "id": "12345"
+    "id":"b16404b4-f690-44dc-8db0-8f48ec568590",
+    "username":"francisco.parreira",
+    "firstName":"Lorraine",
+    "lastName":"Almeida",
+    "employeeCode":"640708",
+    "position":"gardener",
+    "cpf":"534.670.770-05"
   },
   "log": {
-    "sentAt": "03-17-2026T14:00:00.000Z",
-    "message": "Mensagem de teste"
+    "id":"9580ab40-b0b6-42cb-bb8f-7c1e1f654f6a",
+    "sentAt":"01-27-2026T12:05:04.001Z",
+    "message":"No. Interestingly enough, her leaf blower picked up.",
+    "format":null
   }
 }
 ```
@@ -48,7 +56,7 @@ A mensagem formatada e enviada para a fila `training-converter.send_as_json` (co
 
 ```json
 {
-  "username": "12345",
+  "username": "id do (user)",
   "createdAt": "2026-03-23 13:59:00",
   "sentAt": "2026-03-17 14:00:00",
   "message": "Mensagem de teste"
@@ -92,6 +100,7 @@ P2
 │   ├── main
 │   │   ├── java/com/eletra/integracao/business
 │   │   │   ├── config
+│   │   │   │   └── JmsConfig.java
 │   │   │   ├── dto
 │   │   │   │   ├── ReceivedMessageDTO.java
 │   │   │   │   └── SentMessageDTO.java
