@@ -41,12 +41,13 @@ public class IntegrationTest {
         }
         """;
 
-        // O resto do método (WHEN e THEN) continua igual!
+        // WHEN
         jmsTemplate.convertAndSend("training-converter.receive_as_json", jsonEntrada);
 
         jmsTemplate.setReceiveTimeout(10000);
         String jsonSaida = (String) jmsTemplate.receiveAndConvert("training-converter.send_as_json");
 
+        // THEN
         Assertions.assertNotNull(jsonSaida);
         // As validações abaixo confirmam que o P2 "limpou" o lixo e mandou só o necessário
         Assertions.assertTrue(jsonSaida.contains("\"username\":\"olivia.tavares\""));
@@ -88,15 +89,17 @@ public class IntegrationTest {
     @Test
     void deveFazerCatchAoLancarExcecaoDoJms() {
         // Simula uma falha de conexão com a fila apenas para verificar a cobertura do bloco catch no Producer
+        // Given: Um cenário onde o Broker (Artemis) está fora do ar ou inacessível
         org.mockito.Mockito.doThrow(new org.springframework.jms.UncategorizedJmsException("Error Simulado"))
             .when(jmsTemplate).convertAndSend(org.mockito.Mockito.anyString(), org.mockito.Mockito.anyString());
 
-        // Quando o producer for acionado, ele deve cair no catch e apenas logar o erro
+        // When: O producer tenta enviar uma mensagem nesse cenário de falha
+        // Then: O sistema deve tratar o erro internamente (catch) e não lançar exceção para fora
         Assertions.assertDoesNotThrow(() -> {
             businessProducer.send("Mensagem");
         });
 
-        // Garantir o reset para não interferir em outros testes caso rodem depois
+        // Then: Garantir o reset para não interferir em outros testes caso rodem depois.
         org.mockito.Mockito.reset(jmsTemplate);
     }
 

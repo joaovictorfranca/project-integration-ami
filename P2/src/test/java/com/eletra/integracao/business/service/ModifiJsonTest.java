@@ -79,6 +79,7 @@ public class ModifiJsonTest {
                     "user": { "username":"teste" },
                     "log": { "message":"oi", "sentAt":"01-27-2026T12:05:04.001Z" }
                 }""";
+        // When e Then
         Exception exception = assertThrows(Exception.class, () -> modifiJson.execute(message));
         assertTrue(exception.getMessage().contains("User ou Log ausentes")
                 || exception.getMessage().contains("Invalid user ID"));
@@ -92,60 +93,76 @@ public class ModifiJsonTest {
                     "user": { "id":"" },
                     "log": { "message":"oi", "sentAt":"01-27-2026T12:05:04.001Z" }
                 }""";
+        // When e Then
         Exception exception = assertThrows(Exception.class, () -> modifiJson.execute(message));
         assertTrue(exception.getMessage().contains("Invalid user ID"));
     }
 
     @Test
     public void deveLancarExcecaoQuandoOLogEstiverAusente() {
+        // Given: JSON sem o log
         String message = "{ \"user\": { \"id\":\"123\" } }";
 
+        // When e Then
         Exception exception = assertThrows(Exception.class, () -> modifiJson.execute(message));
         assertTrue(exception.getMessage().contains("Log is missing"));
     }
 
     @Test
     public void deveLancarExcecaoQuandoOUsuarioEstiverAusente() {
+        // Given
         String message = "{ \"log\": { \"message\":\"oi\", \"sentAt\":\"01-27-2026T12:05:04.001Z\" } }";
 
+        // When e Then
         Exception exception = assertThrows(Exception.class, () -> modifiJson.execute(message));
         assertTrue(exception.getMessage().contains("User is missing"));
     }
 
     @Test
     public void deveLancarExcecaoQuandoSentAtEstiverAusenteOuVazio() {
+        // Given
         String messageWithoutSentAt = """
                 {
                     "user": { "id":"123" },
                     "log": { "message":"oi" }
                 }""";
+
+        // When e Then
         Exception exception = assertThrows(Exception.class, () -> modifiJson.execute(messageWithoutSentAt));
         assertTrue(exception.getMessage().contains("Invalid sentAt"));
 
+        // Given
         String messageEmptySentAt = """
                 {
                     "user": { "id":"123" },
                     "log": { "message":"oi", "sentAt":"" }
                 }""";
+        // When e Then
         Exception exception2 = assertThrows(Exception.class, () -> modifiJson.execute(messageEmptySentAt));
         assertTrue(exception2.getMessage().contains("Invalid sentAt"));
     }
 
     @Test
     public void deveLancarExcecaoQuandoMensagemEstiverAusenteOuVazia() {
+        // Given
         String messageWithoutMsg = """
                 {
                     "user": { "id":"123" },
                     "log": { "sentAt":"01-27-2026T12:05:04.001Z" }
                 }""";
+
+        // When e Then
         Exception exception = assertThrows(Exception.class, () -> modifiJson.execute(messageWithoutMsg));
         assertTrue(exception.getMessage().contains("Invalid message content"));
 
+        // Given
         String messageEmptyMsg = """
                 {
                     "user": { "id":"123" },
                     "log": { "sentAt":"01-27-2026T12:05:04.001Z", "message":"" }
                 }""";
+
+        // When e Then
         Exception exception2 = assertThrows(Exception.class, () -> modifiJson.execute(messageEmptyMsg));
         assertTrue(exception2.getMessage().contains("Invalid message content"));
     }

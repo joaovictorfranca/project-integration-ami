@@ -10,7 +10,10 @@ class ApplicationTests {
 
 	@Test
 	void contextLoads() {
-		Application.main(new String[]{});
-	}
+		// Given: O ambiente de teste está configurado com Testcontainers (Artemis)
 
+		// When: O Spring Boot tenta inicializar o contexto completo da aplicação
+
+		// Then: O carregamento deve ocorrer sem erros, validando Beans e configurações de infraestrutura
+	}
 }

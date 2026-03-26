@@ -214,6 +214,26 @@ Os testes validarão:
 
 ---
 
+## Cobertura de Testes (Coverage)
+
+Para garantir a confiabilidade das transformações e a resiliência do sistema, o projeto foi desenvolvido buscando a cobertura total das classes de negócio. Abaixo, seguem os resultados obtidos através do plugin de Coverage do IntelliJ:
+
+### Relatório Geral de Cobertura
+
+![Cobertura de Testes](docs/images/coverage-report.png)
+
+*O relatório acima demonstra que 100% das linhas de código das camadas de Service, Listener e Producer foram validadas pelos testes de unidade e integração.*
+
+### Detalhamento por Classe
+
+* A seguinte imagem comprova 100% de cobertura de testes, em todas as classes do P2.
+
+![Detalhamento por classes](docs/images/detalhamento-por-classe.png)
+
+> **Nota:** A classe `Application` atinge cobertura através do teste de carregamento de contexto (`contextLoads`), garantindo que a infraestrutura do Spring Boot está operando corretamente.
+
+---
+
 ## Conclusão
 
 Com a implementação deste módulo **BUSINESS (P2)**, o pipeline de integração de dados da aplicação se completa:

@@ -11,4 +11,8 @@ class ProjetoIntegracaoAmiApplicationTests {
 	void contextLoads() {
 	}
 
+	@Test
+	void testMain() {
+		ProjetoIntegracaoAmiApplicationConverter.main(new String[]{"--spring.main.web-application-type=none"});
+	}
 }
