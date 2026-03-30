@@ -1,0 +1,54 @@
+services:
+  artemis:
+    image: apache/activemq-artemis:latest
+    container_name: ami-activemq
+    ports:
+      - "61616:61616"
+      - "8161:8161"
+    environment:
+      ARTEMIS_USER: admin
+      ARTEMIS_PASSWORD: admin
+    volumes:
+      - artemis_data:/var/lib/artemis-instance
+    restart: always
+
+  cronjob:
+    image: 10.160.0.21:5000/trainee-cronjob:latest
+    container_name: cronjob
+    environment:
+      BROKER_URL: artemis       # Nome do serviço definido no topo do seu compose
+      BROKER_PORT: 61616
+      BROKER_USER: admin        # Deve ser igual ao ARTEMIS_USER
+      BROKER_PASSWORD: admin    # Deve ser igual ao ARTEMIS_PASSWORD
+      REDIS_HOST: redis         # Mudado de 'redis_server' para o nome do seu serviço 'redis'
+      REDIS_PORT: 6379
+      # URL do JDBC deve apontar para 'postgres' (nome do seu serviço) e para o banco 'ami_db'
+      DATASOURCE_JDBC: jdbc:postgresql://postgres:5432/ami_db
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+    ports:
+      - "8082:8080"
+    volumes:
+      - cronjob_data:/data
+    restart: always
+
+  ftp-server:
+    image: stilliard/pure-ftpd:latest
+    container_name: ftp_server
+    environment:
+      FTP_USER_NAME: admin
+      FTP_USER_PASS: admin
+      FTP_USER_HOME: /home/ftp_server/data
+      PUBLICHOST: localhost
+      ADDED_FLAGS: "-p 30000:30009"
+    ports:
+      - "2121:2121"
+      - "30000-30009:30000-30009"
+    volumes:
+      - ftp_server_data:/home/ftp_server/data
+    restart: always
+
+volumes:
+  artemis_data:
+  cronjob_data:
+  ftp_server_data:

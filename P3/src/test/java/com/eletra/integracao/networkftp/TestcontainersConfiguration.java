@@ -1,4 +1,4 @@
-package com.eletra.integracao.business;
+package com.eletra.integracao.networkftp;
 
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
@@ -7,11 +7,12 @@ import org.testcontainers.activemq.ArtemisContainer;
 import org.testcontainers.utility.DockerImageName;
 
 @TestConfiguration(proxyBeanMethods = false)
-public class TestcontainersConfiguration {
+class TestcontainersConfiguration {
 
 	@Bean
 	@ServiceConnection
 	ArtemisContainer artemisContainer() {
 		return new ArtemisContainer(DockerImageName.parse("apache/activemq-artemis:latest"));
 	}
+
 }
