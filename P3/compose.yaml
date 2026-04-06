@@ -32,23 +32,6 @@ services:
       - cronjob_data:/data
     restart: always
 
-  ftp-server:
-    image: stilliard/pure-ftpd:latest
-    container_name: ftp_server
-    environment:
-      FTP_USER_NAME: admin
-      FTP_USER_PASS: admin
-      FTP_USER_HOME: /home/ftp_server/data
-      PUBLICHOST: localhost
-      ADDED_FLAGS: "-p 30000:30009"
-    ports:
-      - "2121:2121"
-      - "30000-30009:30000-30009"
-    volumes:
-      - ftp_server_data:/home/ftp_server/data
-    restart: always
-
 volumes:
   artemis_data:
   cronjob_data:
-  ftp_server_data:

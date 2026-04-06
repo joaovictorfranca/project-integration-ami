@@ -1,4 +1,4 @@
-package com.eletra.integracao.networkftp.listener;
+package com.eletra.integracao.networkftp.controller;
 
 import com.eletra.integracao.networkftp.service.CsvFtpService;
 import lombok.RequiredArgsConstructor;

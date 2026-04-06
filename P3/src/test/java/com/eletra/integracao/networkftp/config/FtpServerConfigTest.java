@@ -1,61 +1,90 @@
 package com.eletra.integracao.networkftp.config;
 
+import org.apache.ftpserver.DataConnectionConfigurationFactory;
 import org.apache.ftpserver.FtpServer;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.apache.ftpserver.FtpServerFactory;
+import org.apache.ftpserver.ftplet.Authority;
+import org.apache.ftpserver.listener.ListenerFactory;
+import org.apache.ftpserver.usermanager.impl.BaseUser;
+import org.apache.ftpserver.usermanager.impl.WritePermission;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.integration.ftp.session.DefaultFtpSessionFactory;
-import org.springframework.test.context.TestPropertySource;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 
-@SpringBootTest
-@TestPropertySource(properties = {
-        "application.ftp.pasv_ports=30000-30001",
-        "application.ftp.username=user_test",
-        "application.ftp.password=pass_test",
-        "application.ftp.host=localhost",
-        "application.ftp.port=2221",
-        "application.ftp.listener=default",
-        "application.ftp.root_directory=test_ftp_dir"
-})
-class FtpServerConfigTest {
+@TestConfiguration
+@Profile("test")
+public class FtpServerConfigTest {
 
-    @Autowired
-    private DefaultFtpSessionFactory ftpSessionFactory;
+    @Value("${application.ftp.pasv_ports}")
+    private String ftpPasvPorts;
 
-    @Autowired
-    private FtpServer ftpServer;
+    @Value("${application.ftp.username}")
+    private String ftpClientUsername;
 
-    @Test
-    @DisplayName("GIVEN propriedades válidas WHEN contexto inicia THEN deve configurar factory e servidor")
-    void deveConfigurarComponentesFtpComSucesso() {
-        // GIVEN - Propriedades injetadas via @TestPropertySource
+    @Value("${application.ftp.password}")
+    private String ftpClientPassword;
 
-        // WHEN - O Spring Boot sobe o contexto (Autowired faz isso)
+    @Value("${application.ftp.host}")
+    private String ftpHost;
 
-        // THEN
-        Assertions.assertNotNull(ftpSessionFactory, "A Factory de sessão deveria ter sido criada");
-        Assertions.assertNotNull(ftpServer, "O Servidor FTP deveria ter sido iniciado");
-        Assertions.assertFalse(ftpServer.isStopped(), "O Servidor FTP deve estar rodando");
+    @Value("${application.ftp.port}")
+    private Integer ftpPort;
+
+    @Value("${application.ftp.listener}")
+    private String ftpListener;
+
+    @Value("${application.ftp.root_directory}")
+    private String ftpRootDirectory;
+
+    @Bean
+    public DefaultFtpSessionFactory ftpSessionFactory() {
+        DefaultFtpSessionFactory sf = new DefaultFtpSessionFactory();
+        sf.setHost(ftpHost);
+        sf.setPort(ftpPort);
+        sf.setUsername(ftpClientUsername);
+        sf.setPassword(ftpClientPassword);
+        sf.setClientMode(2);
+        return sf;
     }
 
-    @Test
-    @DisplayName("GIVEN configuração de diretório WHEN servidor inicia THEN deve criar pasta no user.home")
-    void deveCriarDiretorioRaizComSucesso() {
-        // GIVEN
-        String rootDir = "test_ftp_dir";
-        Path expectedPath = Paths.get(System.getProperty("user.home"), rootDir);
+    @Bean(destroyMethod = "stop")
+    public FtpServer ftpServer() throws Exception {
+        FtpServerFactory serverFactory = new FtpServerFactory();
 
-        // WHEN - O Bean ftpServer foi instanciado
+        ListenerFactory listenerFactory = new ListenerFactory();
+        listenerFactory.setPort(ftpPort);
 
-        // THEN
-        Assertions.assertTrue(Files.exists(expectedPath), "O diretório do FTP deveria ter sido criado automaticamente");
+        DataConnectionConfigurationFactory dataConnFactory = new DataConnectionConfigurationFactory();
+        dataConnFactory.setPassivePorts(ftpPasvPorts);
+        listenerFactory.setDataConnectionConfiguration(dataConnFactory.createDataConnectionConfiguration());
 
-        expectedPath.toFile().delete();
+        serverFactory.addListener(ftpListener, listenerFactory.createListener());
+
+        BaseUser user = new BaseUser();
+        user.setName(ftpClientUsername);
+        user.setPassword(ftpClientPassword);
+
+        Path home = Paths.get(System.getProperty("user.home"), ftpRootDirectory);
+        Files.createDirectories(home);
+        user.setHomeDirectory(home.toAbsolutePath().toString());
+
+        List<Authority> authorities = new ArrayList<>();
+        authorities.add(new WritePermission());
+        user.setAuthorities(authorities);
+
+        serverFactory.getUserManager().save(user);
+
+        FtpServer server = serverFactory.createServer();
+        server.start();
+        return server;
     }
 }

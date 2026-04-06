@@ -1,5 +1,6 @@
 package com.eletra.integracao.networkftp;
 
+import com.eletra.integracao.networkftp.config.TestcontainersConfiguration;
 import org.springframework.boot.SpringApplication;
 
 public class TestNetworkFtpApplication {

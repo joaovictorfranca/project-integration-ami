@@ -1,4 +1,4 @@
-package com.eletra.integracao.networkftp.listener;
+package com.eletra.integracao.networkftp.controller;
 
 import com.eletra.integracao.networkftp.service.CsvFtpService;
 import org.junit.jupiter.api.DisplayName;
@@ -31,6 +31,7 @@ class JmsControllerTest {
         // THEN (Então...)
         // Verifica se o método execute da service foi chamado exatamente 1 vez com a String correta
         verify(csvFtpService, times(1)).execute(mensagemSimulada);
+        verifyNoMoreInteractions(csvFtpService);
     }
 
     @Test
@@ -49,5 +50,17 @@ class JmsControllerTest {
 
         // Garante que o fluxo passou pela service antes de estourar o erro
         verify(csvFtpService, times(1)).execute(mensagemErro);
+    }
+    @Test
+    @DisplayName("Deve repassar null para a service caso a mensagem da fila venha nula")
+    void deveLidarComMensagemNula() throws Exception {
+        // GIVEN
+        String mensagemNula = null;
+
+        // WHEN
+        jmsController.receiveCsv(mensagemNula);
+
+        // THEN
+        verify(csvFtpService, times(1)).execute(null);
     }
 }

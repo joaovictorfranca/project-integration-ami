@@ -10,6 +10,7 @@ import org.apache.ftpserver.usermanager.impl.WritePermission;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.integration.ftp.session.DefaultFtpSessionFactory;
 
 import java.nio.file.Files;
@@ -19,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Configuration
+@Profile("!test")
 public class FtpServerConfig {
 
     @Value("${application.ftp.pasv_ports}")
@@ -53,7 +55,7 @@ public class FtpServerConfig {
         return sf;
     }
 
-    @Bean
+    @Bean(destroyMethod = "stop")
     public FtpServer ftpServer() throws Exception {
         FtpServerFactory serverFactory = new FtpServerFactory();
 

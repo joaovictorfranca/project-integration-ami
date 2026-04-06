@@ -1,30 +1,41 @@
 package com.eletra.integracao.networkftp.service;
 
-import com.eletra.integracao.networkftp.TestcontainersConfiguration;
+import com.eletra.integracao.networkftp.config.FtpServerConfigTest;
+import com.eletra.integracao.networkftp.config.TestcontainersConfiguration;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.integration.ftp.session.DefaultFtpSessionFactory;
 import org.springframework.integration.ftp.session.FtpSession;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 
 import java.io.IOException;
+import java.io.InputStream;
+
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.*;
 
 
-@ExtendWith(MockitoExtension.class)
 @SpringBootTest
-@Import(TestcontainersConfiguration.class)
-class CsvFtpServiceTests {
+@ActiveProfiles("test") // <-- Ativa o profile que desliga a Main e liga o Test
+@Import({TestcontainersConfiguration.class, FtpServerConfigTest.class}) // Importa o seu servidor FTP com a porta dinâmica
+class CsvFtpServiceTest {
 
     @Autowired
     private CsvFtpService csvFtpService;
 
-    @Autowired
+    @MockitoSpyBean
     private DefaultFtpSessionFactory ftpSessionFactory;
+
+    @Mock
+    private FtpSession ftpSession;
 
     @Test
     @DisplayName("Deve processar e armazenar o CSV no servidor FTP com sucesso")
@@ -58,5 +69,53 @@ class CsvFtpServiceTests {
         Assertions.assertThrows(Exception.class, () -> {
             csvFtpService.execute(csvInvalido);
         }, "Deveria lançar exceção para cobrir o bloco catch da Service");
+    }
+
+    @Test
+    @DisplayName("GIVEN dados válidos WHEN enviar para FTP THEN deve realizar upload e fechar sessão")
+    void deveEnviarArquivoComSucesso() throws Exception {
+        // GIVEN
+        String fileName = "teste.csv";
+        // Mockamos a sessão para garantir que o Spring use o nosso mock dentro do método privado
+        when(ftpSessionFactory.getSession()).thenReturn(ftpSession);
+
+        // WHEN - Chamamos o EXECUTE (que por dentro chama o envia privado)
+        csvFtpService.execute(fileName);
+
+        // THEN - Verificamos se o que estava no método privado aconteceu
+        verify(ftpSession, times(1)).write(any(InputStream.class), anyString());
+        verify(ftpSession, times(1)).close();
+    }
+
+    @Test
+    @DisplayName("GIVEN erro na escrita WHEN enviar para FTP THEN deve logar, lançar exceção e fechar sessão")
+    void deveLancarExcecaoQuandoEscritaFalhar() throws IOException {
+        // GIVEN
+        String fileName = "erro.csv";
+        when(ftpSessionFactory.getSession()).thenReturn(ftpSession);
+
+        // Simula erro durante a escrita dentro do método privado
+        doThrow(new IOException("Falha de rede FTP")).when(ftpSession).write(any(), anyString());
+
+        // WHEN & THEN
+        assertThrows(IOException.class, () -> {
+            csvFtpService.execute(fileName);
+        });
+
+        // Garante que mesmo com erro o try-with-resources fechou a sessão
+        verify(ftpSession, times(1)).close();
+    }
+
+    @Test
+    @DisplayName("GIVEN erro ao abrir sessão WHEN enviar para FTP THEN deve relançar erro (Cobre falha na factory)")
+    void deveLancarExcecaoQuandoNaoConseguirSessao() {
+        // GIVEN
+        // Forçamos erro logo na abertura da sessão (primeira linha do try-with-resources do envia)
+        when(ftpSessionFactory.getSession()).thenThrow(new RuntimeException("Servidor Offline"));
+
+        // WHEN & THEN
+        assertThrows(RuntimeException.class, () -> {
+            csvFtpService.execute("qualquer conteudo");
+        });
     }
 }
