@@ -20,7 +20,7 @@ class JmsControllerTest {
     private JmsController jmsController;
 
     @Test
-    @DisplayName("Deve chamar a service com sucesso ao receber mensagem da fila")
+    @DisplayName("Deve chamar a services com sucesso ao receber mensagem da fila")
     void deveProcessarMensagemComSucesso() throws Exception {
         // GIVEN (Dado que...)
         String mensagemSimulada = "id;nome;valor\n1;Teste;100.0";
@@ -29,13 +29,13 @@ class JmsControllerTest {
         jmsController.receiveCsv(mensagemSimulada);
 
         // THEN (Então...)
-        // Verifica se o método execute da service foi chamado exatamente 1 vez com a String correta
+        // Verifica se o método execute da services foi chamado exatamente 1 vez com a String correta
         verify(csvFtpService, times(1)).execute(mensagemSimulada);
         verifyNoMoreInteractions(csvFtpService);
     }
 
     @Test
-    @DisplayName("Deve repassar a exceção caso a service falhe")
+    @DisplayName("Deve repassar a exceção caso a services falhe")
     void deveLancarExcecaoQuandoServiceFalhar() throws Exception {
         // GIVEN
         String mensagemErro = "dados_invalidos";
@@ -48,11 +48,11 @@ class JmsControllerTest {
             jmsController.receiveCsv(mensagemErro);
         });
 
-        // Garante que o fluxo passou pela service antes de estourar o erro
+        // Garante que o fluxo passou pela services antes de estourar o erro
         verify(csvFtpService, times(1)).execute(mensagemErro);
     }
     @Test
-    @DisplayName("Deve repassar null para a service caso a mensagem da fila venha nula")
+    @DisplayName("Deve repassar null para a services caso a mensagem da fila venha nula")
     void deveLidarComMensagemNula() throws Exception {
         // GIVEN
         String mensagemNula = null;

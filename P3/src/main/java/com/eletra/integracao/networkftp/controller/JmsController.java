@@ -22,7 +22,7 @@ public class JmsController {
     public void receiveCsv(String message) throws Exception {
         log.info("Mensagem recebida da fila. Iniciando processamento FTP...");
 
-        // Aciona a service que gerencia o stream e o envio
+        // Aciona a services que gerencia o stream e o envio
         csvFtpService.execute(message);
 
         log.info("Processamento finalizado com sucesso para a mensagem atual.");

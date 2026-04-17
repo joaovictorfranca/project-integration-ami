@@ -31,7 +31,7 @@ public class CsvFtpService {
         // Criamos o stream aqui
         try (InputStream inputStream = new ByteArrayInputStream(csvContent.getBytes(StandardCharsets.UTF_8))) {
             // Apenas passamos o stream para o especialista em envio
-            envia(inputStream, fileName);
+            send(inputStream, fileName);
             log.info("Processo de envio para o arquivo {} iniciado.", fileName);
         } catch (Exception e) {
             log.error("Falha no fluxo de processamento do CSV: {}", e.getMessage());
@@ -39,7 +39,7 @@ public class CsvFtpService {
         }
     }
 
-    private void envia(InputStream data, String fileName) throws IOException {
+    private void send(InputStream data, String fileName) throws IOException {
         // Abre e fecha a conexão com o FTP automaticamente aqui
         try (FtpSession session = ftpSessionFactory.getSession()) {
             session.write(data, fileName);

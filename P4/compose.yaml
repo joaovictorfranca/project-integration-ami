@@ -1,0 +1,30 @@
+services:
+  artemis:
+    image: apache/activemq-artemis:latest
+    container_name: ami-activemq
+    ports:
+      - "61616:61616"
+      - "8161:8161"
+    environment:
+      ARTEMIS_USER: admin
+      ARTEMIS_PASSWORD: admin
+    volumes:
+      - artemis_data:/var/lib/artemis-instance
+    restart: always
+
+  postgres:
+    image: postgres:15
+    container_name: ami-postgres
+    environment:
+      - POSTGRES_DB=ami_db
+      - POSTGRES_PASSWORD=admin
+      - POSTGRES_USER=admin
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: always
+
+volumes:
+  artemis_data:
+  postgres_data:

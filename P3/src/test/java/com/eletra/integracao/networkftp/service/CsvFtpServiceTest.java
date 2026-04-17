@@ -1,6 +1,5 @@
 package com.eletra.integracao.networkftp.service;
 
-import com.eletra.integracao.networkftp.config.FtpServerConfigTest;
 import com.eletra.integracao.networkftp.config.TestcontainersConfiguration;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
@@ -11,7 +10,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.integration.ftp.session.DefaultFtpSessionFactory;
 import org.springframework.integration.ftp.session.FtpSession;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 
 import java.io.IOException;
@@ -24,8 +22,7 @@ import static org.mockito.Mockito.*;
 
 
 @SpringBootTest
-@ActiveProfiles("test") // <-- Ativa o profile que desliga a Main e liga o Test
-@Import({TestcontainersConfiguration.class, FtpServerConfigTest.class}) // Importa o seu servidor FTP com a porta dinâmica
+@Import(TestcontainersConfiguration.class) // Importa o seu servidor FTP com a porta dinâmica
 class CsvFtpServiceTest {
 
     @Autowired

@@ -20,7 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Configuration
-@Profile("!test")
+//@Profile("!test")
 public class FtpServerConfig {
 
     @Value("${application.ftp.pasv_ports}")

@@ -25,7 +25,7 @@ class MessageListenerTest {
     private MessageListener messageListener;
 
     @Test
-    @DisplayName("Deve ler o JSON, converter para MessageDTO e enviar para o service")
+    @DisplayName("Deve ler o JSON, converter para MessageDTO e enviar para o services")
     void deveProcessarMensagemComSucesso() throws Exception {
         // Given
         String jsonBruto = """
@@ -61,7 +61,7 @@ class MessageListenerTest {
     }
 
     @Test
-    @DisplayName("Não deve chamar o service quando o JSON for inválido")
+    @DisplayName("Não deve chamar o services quando o JSON for inválido")
     void naoDeveChamarServiceQuandoJsonForInvalido() throws Exception {
         // Given
         String jsonInvalido = "{ json invalido }";
