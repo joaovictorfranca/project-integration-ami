@@ -2,8 +2,7 @@ package com.eletra.business.listener;
 
 import com.eletra.business.model.entities.ProcessEntity;
 import com.eletra.business.repositories.ProcessRepository;
-import com.eletra.business.repositories.TicketRepository;
-import com.eletra.business.service.ModifiJson;
+import com.eletra.business.service.ModifyJson;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.jms.annotation.JmsListener;
@@ -16,8 +15,7 @@ import java.util.UUID;
 @Component
 public class BusinessListener {
 
-    private final ModifiJson jsonFormatService;
-    private final TicketRepository ticketRepository;
+    private final ModifyJson jsonFormatService;
     private final ProcessRepository processRepository;
 
     @JmsListener(destination = "training-converter.receive_as_json")

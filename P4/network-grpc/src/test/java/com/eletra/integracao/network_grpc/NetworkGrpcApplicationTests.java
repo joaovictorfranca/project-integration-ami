@@ -11,9 +11,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Import;
 
 @Import(TestcontainersConfig.class)
-@SpringBootTest(properties = {
-		"spring.main.allow-bean-definition-overriding=true"
-})
+@SpringBootTest
 class NetworkGrpcApplicationTests {
 
 	@Autowired

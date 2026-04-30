@@ -60,6 +60,15 @@ A estratégia de testes garante que mudanças no código não quebrem o contrato
 
 ---
 
+## Dificuldades encontradas
+
+* No `network-grpc` surgiram alguns erros relacionados a conflitos de porta do servidor gRPC quando subiam os testes com a aplicação rodando, esse erro acontecia pois o servidor gRPC dos testes estava tentando subir na mesma porta do servidor da aplicação.
+
+Criei um "Resourses" para os testes e alterei a porta do gRPC nos testes, coloquei o valor 0 para ele, pois assim ele sobe em alguma porta que esteja livre.
+
+
+---
+
 ## ⚙️ Comandos Úteis
 
 **Gerar classes do Protobuf:**

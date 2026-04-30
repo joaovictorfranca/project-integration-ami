@@ -7,7 +7,8 @@ import com.eletra.integracao.network_grpc.grpc.EletraISServiceGrpc;
 import com.eletra.integracao.network_grpc.grpc.TransactionRequest;
 import com.eletra.integracao.network_grpc.grpc.TransactionResponse;
 import com.eletra.integracao.network_grpc.models.entities.ProcessEntity;
-import net.devh.boot.grpc.server.service.GrpcService;
+//import net.devh.boot.grpc.server.service.GrpcService;
+import org.springframework.grpc.server.service.GrpcService;
 
 import java.util.UUID;
 

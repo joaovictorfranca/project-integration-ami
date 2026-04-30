@@ -1,5 +1,6 @@
 package com.eletra.business;
 
+import com.eletra.business.TestcontainersConfiguration;
 import org.springframework.boot.SpringApplication;
 
 public class TestBusinessApplication {

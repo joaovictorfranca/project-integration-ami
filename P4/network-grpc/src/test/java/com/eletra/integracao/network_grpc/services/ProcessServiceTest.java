@@ -16,10 +16,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import java.util.UUID;
 
 @Import(TestcontainersConfig.class)
-//@SpringBootTest
-@SpringBootTest(properties = {
-        "spring.main.allow-bean-definition-overriding=true",
-})
+@SpringBootTest
 public class ProcessServiceTest {
 
     @Autowired

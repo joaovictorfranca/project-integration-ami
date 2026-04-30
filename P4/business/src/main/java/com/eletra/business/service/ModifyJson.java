@@ -20,7 +20,7 @@ import java.util.UUID;
 @Log4j2
 @RequiredArgsConstructor
 @Service
-public class ModifiJson {
+public class ModifyJson {
 
     private final BusinessProducer producer;
     private final ObjectMapper objectMapper;
@@ -36,28 +36,34 @@ public class ModifiJson {
 
         ProcessEntity process = processAndTicket.createMyProcess("",ticketId);
 
-        // 1. Converte String JSON para Objeto
-        ReceivedMessageDTO receivedDto = objectMapper.readValue(json, ReceivedMessageDTO.class);
+        try {
+            // 1. Converte String JSON para Objeto
+            ReceivedMessageDTO receivedDto = objectMapper.readValue(json, ReceivedMessageDTO.class);
 
-        // 2. Valida os campos obrigatórios
-        verifyFormat(receivedDto);
+            // 2. Valida os campos obrigatórios
+            verifyFormat(receivedDto);
 
-        // 3. Transforma para o DTO de saída (Regra: ID vira Username)
-        SentMessageDTO sentDto = new SentMessageDTO(
-                receivedDto.getUser().getId(),
-                outFmt.format(Instant.now(clock)),
-                formatSentAt(receivedDto.getLog().getSentAt()),
-                receivedDto.getLog().getMessage()
-        );
+            // 3. Transforma para o DTO de saída (Regra: ID vira Username)
+            SentMessageDTO sentDto = new SentMessageDTO(
+                    receivedDto.getUser().getId(),
+                    outFmt.format(Instant.now(clock)),
+                    formatSentAt(receivedDto.getLog().getSentAt()),
+                    receivedDto.getLog().getMessage()
+            );
 
-        // 4. Converte de volta para String para enviar
-        String outputJson = objectMapper.writeValueAsString(sentDto);
+            // 4. Converte de volta para String para enviar
+            String outputJson = objectMapper.writeValueAsString(sentDto);
 
-        log.info("Processando mensagem para a Converter: {}", outputJson);
+            log.info("Processando mensagem para a Converter: {}", outputJson);
 
-        processAndTicket.updateProcess(process, ProcessStatus.SUCCESS,outputJson);
+            processAndTicket.updateProcess(process, ProcessStatus.SUCCESS,outputJson);
 
-        producer.send(process.getId().toString());
+            producer.send(process.getId().toString());
+        } catch (Exception e) {
+            log.error("JSON validation/conversion error for process {}, marking as ERROR: {}", process.getId(), e.getMessage());
+            processAndTicket.updateProcess(process, ProcessStatus.ERROR, json);
+            throw e;
+        }
 
     }
 

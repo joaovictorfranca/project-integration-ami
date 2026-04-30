@@ -5,9 +5,10 @@ import org.springframework.boot.testcontainers.service.connection.ServiceConnect
 import org.springframework.context.annotation.Bean;
 import org.testcontainers.activemq.ArtemisContainer;
 import org.testcontainers.utility.DockerImageName;
+import org.testcontainers.containers.PostgreSQLContainer;
 
 @TestConfiguration(proxyBeanMethods = false)
-class TestcontainersConfiguration {
+public class TestcontainersConfiguration {
 
 	@Bean
 	@ServiceConnection
@@ -15,4 +16,11 @@ class TestcontainersConfiguration {
 		return new ArtemisContainer(DockerImageName.parse("apache/activemq-artemis:latest"));
 	}
 
+	@Bean
+	@ServiceConnection
+	PostgreSQLContainer postgresContainer() {
+
+		return new PostgreSQLContainer(DockerImageName.parse("postgres:15"));
+
+	}
 }

@@ -22,19 +22,4 @@ public class TestcontainersConfig {
     PostgreSQLContainer postgresContainer() {
         return new PostgreSQLContainer(DockerImageName.parse("postgres:15"));
     }
-
-//    @Bean
-//    @ServiceConnection
-//    PostgreSQLContainer postgresContainer() {
-//        return new PostgreSQLContainer(DockerImageName.parse("postgres:15"));
-//    }
-//
-//    // O "Pulo do Gato": Vamos forçar o parâmetro na URL
-//    @Bean
-//    public DynamicPropertyRegistrar dynamicPropertyRegistrar(PostgreSQLContainer postgres) {
-//        return registry -> {
-//            registry.add("spring.datasource.url",
-//                    () -> postgres.getJdbcUrl() + "?stringtype=unspecified");
-//        };
-//    }
 }

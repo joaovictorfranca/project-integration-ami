@@ -1,4 +1,4 @@
-package com.eletra.integracao.networkftp.config;
+package com.eletra.network_ftp.config;
 
 import org.apache.ftpserver.DataConnectionConfigurationFactory;
 import org.apache.ftpserver.FtpServer;

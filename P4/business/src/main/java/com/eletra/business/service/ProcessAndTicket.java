@@ -22,6 +22,9 @@ public class ProcessAndTicket {
     private final TicketRepository ticketRepository;
     private final ProcessRepository processRepository;
 
+//  Esta anotação garante a atomicidade das operações. Como o método realiza alterações em diferentes
+//  tabelas, o @Transactional assegura que, se qualquer erro ocorrer no meio do caminho, todas as
+//  alterações sejam desfeitas (rollback), evitando que o banco de dados fique com dados inconsistentes.
     @Transactional
     public ProcessEntity createMyProcess(String payload, UUID ticketId) {
         try {
@@ -50,35 +53,50 @@ public class ProcessAndTicket {
         } catch (RuntimeException e) {
             log.error("Erro de negócio ao criar processo: {}", e.getMessage());
             throw e; // Lança novamente para o Listener saber que falhou
-        } catch (Exception e) {
-            log.error("Erro crítico e inesperado ao criar processo para o Ticket {}: ", ticketId, e);
-            throw new RuntimeException("Falha técnica ao criar processo de negócio", e);
-        }
+        } //catch (Exception e) {
+//            log.error("Erro crítico e inesperado ao criar processo para o Ticket {}: ", ticketId, e);
+//            throw new RuntimeException("Falha técnica ao criar processo de negócio", e);
+//        }
     }
+
+//    @Transactional
+//    public void updateProcess(ProcessEntity process, ProcessStatus status, String payload) {
+//        try {
+//            log.info("Atualizando processo ID: {} para status: {}", process.getId(), status);
+//            process.setPayload(payload);
+//            process.setStatus(status);
+//            processRepository.save(process);
+//        } catch (Exception e) {
+//            log.error("Erro ao atualizar processo ID: {}: ", process.getId(), e);
+//            throw e;
+//        }
+//    }
 
     @Transactional
     public void updateProcess(ProcessEntity process, ProcessStatus status, String payload) {
-        try {
-            log.info("Atualizando processo ID: {} para status: {}", process.getId(), status);
-            process.setPayload(payload);
-            process.setStatus(status);
-            processRepository.save(process);
-        } catch (Exception e) {
-            log.error("Erro ao atualizar processo ID: {}: ", process.getId(), e);
-            throw e;
-        }
+        log.info("Atualizando processo ID: {} para status: {}", process.getId(), status);
+        process.setPayload(payload);
+        process.setStatus(status);
+        processRepository.save(process);
     }
+
+//    @Transactional
+//    public void updateTicket(TicketsEntity ticket, TicketsStatus status) {
+//        try {
+//            log.info("Atualizando status do Ticket ID: {} para: {}", ticket.getId(), status);
+//            ticket.setStatus(status);
+//            ticketRepository.save(ticket);
+//        } catch (Exception e) {
+//            log.error("Erro ao atualizar ticket ID: {}: ", ticket.getId(), e);
+//            throw e;
+//        }
+//    }
 
     @Transactional
     public void updateTicket(TicketsEntity ticket, TicketsStatus status) {
-        try {
-            log.info("Atualizando status do Ticket ID: {} para: {}", ticket.getId(), status);
-            ticket.setStatus(status);
-            ticketRepository.save(ticket);
-        } catch (Exception e) {
-            log.error("Erro ao atualizar ticket ID: {}: ", ticket.getId(), e);
-            throw e;
-        }
+        log.info("Atualizando status do Ticket ID: {} para: {}", ticket.getId(), status);
+        ticket.setStatus(status);
+        ticketRepository.save(ticket);
     }
 
     public TicketsEntity getTicketId(UUID idTicket) {
