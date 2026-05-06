@@ -37,7 +37,7 @@ public class ProcessAndTicket {
             ProcessEntity myProcess = new ProcessEntity(
                     ProcessStatus.PROCESSING,
                     payload,
-                    ProcessType.CONVERTER,
+                    ProcessType.NETWORK_FTP,
                     ticket
             );
 

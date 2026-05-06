@@ -73,4 +73,23 @@ public class ProcessAndTicketTest {
 
         Assertions.assertTrue(thrown.getMessage().contains("Ticket não encontrado com o ID"));
     }
+
+    @Test
+    @DisplayName("Caminho Feliz: Deve atualizar o processo existente")
+    public void shouldUpdateProcessStatusAndPayloadTest() {
+        // GIVEN: Um processo já criado
+        TicketsEntity ticket = ticketRepository.save(new TicketsEntity(TicketsStatus.OPEN));
+        ProcessEntity process = processRepository.save(new ProcessEntity(ProcessStatus.PROCESSING, "", ProcessType.CONVERTER, ticket));
+
+        String newPayload = "UPDATED_CSV_DATA";
+
+        // WHEN: Atualizamos o processo
+        processAndTicket.updateProcess(process, ProcessStatus.SUCCESS, newPayload);
+
+        // THEN: Verificamos no banco
+        ProcessEntity updated = processRepository.findById(process.getId()).orElse(null);
+        Assertions.assertNotNull(updated);
+        Assertions.assertEquals(ProcessStatus.SUCCESS, updated.getStatus());
+        Assertions.assertEquals(newPayload, updated.getPayload());
+    }
 }

@@ -80,21 +80,22 @@ public class MessageListenerTest {
     }
 
     @Test
-    public void dealingWithMalformedJsonTest() throws Exception {
-        // Given
-        String malformedJson = "{ \"user\": { bug } }";
-
+    public void dealingWithServiceFailureTest() throws Exception {
+        // GIVEN: Um processo válido e um ticket
         TicketsEntity ticket = ticketRepository.save(new TicketsEntity(TicketsStatus.IN_PROCESS));
-        ProcessEntity pprocess = processRepository.save(new ProcessEntity(ProcessStatus.SUCCESS, malformedJson, ProcessType.NETWORK_GRPC, ticket));
+        ProcessEntity pprocess = processRepository.save(new ProcessEntity(ProcessStatus.SUCCESS, jsonBruto, ProcessType.NETWORK_GRPC, ticket));
 
-        // When
+        // Forçamos o serviço a explodir quando for chamado
+        Mockito.doThrow(new RuntimeException("Failure in conversion logic"))
+                .when(messageConverterService).convertAndSend(ArgumentMatchers.any(), ArgumentMatchers.any());
+
+        // WHEN: Listener tenta processar
         Assertions.assertDoesNotThrow(() -> {
             messageListener.onMessage(pprocess.getId());
         });
 
-        // Then
-        // O Jackson ObjectMapper vai quebrar silenciosamente (só logar o erro) testando a cobertura do bloco catch.
-        Mockito.verify(messageConverterService, Mockito.never())
+        // THEN: O catch deve atuar (nenhuma exception vaza) e o serviço deve ter sido chamado 1 vez antes da falha
+        Mockito.verify(messageConverterService, Mockito.times(1))
                 .convertAndSend(ArgumentMatchers.any(), ArgumentMatchers.any());
     }
 }
